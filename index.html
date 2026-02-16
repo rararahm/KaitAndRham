@@ -223,6 +223,31 @@
 				margin-bottom: 6px;
 			}
 
+			.love-counter {
+				margin: 6px auto 14px;
+				display: inline-flex;
+				align-items: center;
+				gap: 10px;
+				padding: 8px 16px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.75);
+				border: 1px solid rgba(232, 116, 160, 0.35);
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				color: var(--text);
+				box-shadow: 0 10px 20px rgba(232, 116, 160, 0.18);
+			}
+
+			.love-counter strong {
+				font-weight: 600;
+				letter-spacing: 0.3px;
+			}
+
+			.love-counter span {
+				color: var(--muted);
+				letter-spacing: 0.2px;
+			}
+
 			.journal-note {
 				margin: 18px auto 0;
 				max-width: 720px;
@@ -361,6 +386,12 @@
 					gap: 14px;
 				}
 
+				.love-counter {
+					font-size: 12px;
+					padding: 8px 12px;
+					gap: 8px;
+				}
+
 				.panel {
 					padding: 16px 16px 48px;
 				}
@@ -414,6 +445,10 @@
 	<body>
 		<header>
 			<div class="tagline">Our Story</div>
+			<div class="love-counter" aria-live="polite">
+				<strong>Loving you for</strong>
+				<span id="loveCounter">Loading...</span>
+			</div>
 			<h1>Our Memory Journal</h1>
 			<p>A safe space for our moments together.</p>
 		</header>
@@ -511,6 +546,7 @@
 			const imageModal = document.getElementById("imageModal");
 			const modalImage = document.getElementById("modalImage");
 			const modalClose = document.getElementById("modalClose");
+			const loveCounterEl = document.getElementById("loveCounter");
 
 			let isInitialized = false;
 			let isAuthorized = false;
@@ -591,6 +627,58 @@
 				imageModal.classList.remove("open");
 				imageModal.setAttribute("aria-hidden", "true");
 				modalImage.src = "";
+			}
+
+			function updateLoveCounter() {
+				const start = new Date(2022, 11, 8, 0, 0, 0);
+				const now = new Date();
+				if (now <= start) {
+					loveCounterEl.textContent = "0y 0m 0d 0h 0m 0s";
+					return;
+				}
+
+				let years = now.getFullYear() - start.getFullYear();
+				let months = now.getMonth() - start.getMonth();
+				let days = now.getDate() - start.getDate();
+				let hours = now.getHours() - start.getHours();
+				let minutes = now.getMinutes() - start.getMinutes();
+				let seconds = now.getSeconds() - start.getSeconds();
+
+				if (seconds < 0) {
+					seconds += 60;
+					minutes -= 1;
+				}
+
+				if (minutes < 0) {
+					minutes += 60;
+					hours -= 1;
+				}
+
+				if (hours < 0) {
+					hours += 24;
+					days -= 1;
+				}
+
+				if (days < 0) {
+					months -= 1;
+					const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+					days += prevMonth.getDate();
+				}
+
+				if (months < 0) {
+					months += 12;
+					years -= 1;
+				}
+
+				const parts = [
+					`${years}y`,
+					`${months}m`,
+					`${days}d`,
+					`${hours}h`,
+					`${minutes}m`,
+					`${seconds}s`,
+				];
+				loveCounterEl.textContent = parts.join(" ");
 			}
 
 			async function fetchDriveImages({ apiKey, folderId, pageSize, orderBy }) {
@@ -819,6 +907,8 @@
 			});
 
 			window.addEventListener("load", () => {
+				updateLoveCounter();
+				window.setInterval(updateLoveCounter, 1000);
 				if ((apiKeyInput.value.trim() || DEFAULT_API_KEY).trim()) {
 					handlePublicLoad();
 				}
