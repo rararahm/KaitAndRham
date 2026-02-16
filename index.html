@@ -27,6 +27,7 @@
 				background: radial-gradient(circle at top, #fff1f5 0%, #fde8ef 40%, #fff 100%);
 				color: var(--text);
 				min-height: 100vh;
+				padding-top: 72px;
 			}
 
 			body::before {
@@ -48,6 +49,14 @@
 			}
 
 			h1 {
+				<div class="tabs" role="tablist" aria-label="Journal tabs">
+					<button class="tab-button active" type="button" data-tab="home" role="tab" aria-selected="true">
+						Home
+					</button>
+					<button class="tab-button" type="button" data-tab="photobooth" role="tab" aria-selected="false">
+						PhotoBooth
+					</button>
+				</div>
 				font-size: 36px;
 				letter-spacing: 0.5px;
 				margin: 0 0 10px;
@@ -223,6 +232,66 @@
 				margin-bottom: 6px;
 			}
 
+			.top-nav {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				z-index: 800;
+			}
+
+			.nav-inner {
+				max-width: 1100px;
+				margin: 0 auto;
+				padding: 12px 20px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+			}
+
+			.nav-title {
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				letter-spacing: 1.8px;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+
+			.nav-links {
+				display: inline-flex;
+				gap: 10px;
+				padding: 6px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.75);
+				border: 1px solid rgba(232, 116, 160, 0.25);
+				box-shadow: 0 10px 20px rgba(232, 116, 160, 0.15);
+			}
+
+			.nav-link {
+				text-decoration: none;
+				padding: 8px 16px;
+				border-radius: 999px;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--muted);
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+			}
+
+			.nav-link:active {
+				transform: scale(0.96);
+			}
+
+			.nav-link.active {
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+				color: white;
+				box-shadow: 0 12px 20px rgba(232, 116, 160, 0.3);
+			}
+
 			.love-counter {
 				margin: 6px auto 14px;
 				display: inline-flex;
@@ -303,6 +372,118 @@
 				grid-template-columns: repeat(2, minmax(0, 1fr));
 			}
 
+			.tabs {
+				display: inline-flex;
+				gap: 10px;
+				padding: 6px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.75);
+				border: 1px solid rgba(232, 116, 160, 0.25);
+				box-shadow: 0 10px 20px rgba(232, 116, 160, 0.15);
+				margin: 10px auto 0;
+			}
+
+			.tab-button {
+				border: none;
+				background: transparent;
+				padding: 8px 16px;
+				border-radius: 999px;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--muted);
+				cursor: pointer;
+			}
+
+			.tab-button.active {
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+				color: white;
+				box-shadow: 0 12px 20px rgba(232, 116, 160, 0.3);
+			}
+
+			.tab-panel {
+				display: none;
+			}
+
+			.tab-panel.active {
+				display: block;
+			}
+
+			.photobooth-layout {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) 360px;
+				gap: 18px;
+				align-items: start;
+			}
+
+			.photobooth-list {
+				max-height: 520px;
+				overflow: auto;
+				padding-right: 4px;
+			}
+
+			.photo-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+				gap: 10px;
+			}
+
+			.photo-option {
+				position: relative;
+				border-radius: 14px;
+				overflow: hidden;
+				border: 1px solid rgba(242, 190, 204, 0.6);
+				background: white;
+				cursor: pointer;
+				transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+			}
+
+			.photo-option img {
+				display: block;
+				width: 100%;
+				height: 120px;
+				object-fit: cover;
+			}
+
+			.photo-option.selected {
+				border-color: var(--accent-strong);
+				box-shadow: 0 12px 20px rgba(232, 116, 160, 0.2);
+				transform: translateY(-2px);
+			}
+
+			.photo-option input {
+				position: absolute;
+				opacity: 0;
+				pointer-events: none;
+			}
+
+			.photobooth-preview {
+				display: grid;
+				gap: 12px;
+			}
+
+			.collage-frame {
+				background: rgba(255, 255, 255, 0.9);
+				border-radius: 18px;
+				border: 1px solid rgba(242, 190, 204, 0.6);
+				padding: 12px;
+				box-shadow: 0 14px 28px rgba(232, 116, 160, 0.15);
+			}
+
+			.collage-frame canvas {
+				width: 100%;
+				height: auto;
+				display: block;
+				border-radius: 12px;
+				background: #fff;
+			}
+
+			.booth-actions {
+				display: flex;
+				gap: 10px;
+				flex-wrap: wrap;
+			}
+
 			.modal {
 				position: fixed;
 				inset: 0;
@@ -373,6 +554,19 @@
 			}
 
 			@media (max-width: 720px) {
+				body {
+					padding-top: 92px;
+				}
+
+				.nav-inner {
+					flex-direction: column;
+					align-items: center;
+				}
+
+				.nav-links {
+					width: 100%;
+					justify-content: center;
+				}
 				header {
 					padding-top: 36px;
 				}
@@ -438,11 +632,37 @@
 					width: auto;
 					height: 152px;
 				}
+
+				.tabs {
+					width: 100%;
+					justify-content: center;
+				}
+
+				.photobooth-layout {
+					grid-template-columns: 1fr;
+				}
+
+				.photo-grid {
+					grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+				}
+
+				.photo-option img {
+					height: 100px;
+				}
 			}
 		</style>
 		<script src="https://apis.google.com/js/api.js"></script>
 	</head>
 	<body>
+		<nav class="top-nav">
+			<div class="nav-inner">
+				<div class="nav-title">Our Story</div>
+				<div class="nav-links" aria-label="Pages">
+					<a class="nav-link active" href="index.html">Home</a>
+					<a class="nav-link" href="photobooth.html">PhotoBooth</a>
+				</div>
+			</div>
+		</nav>
 		<header>
 			<div class="tagline">Our Story</div>
 			<div class="love-counter" aria-live="polite">
@@ -454,58 +674,83 @@
 		</header>
 
 		<main class="panel">
-			<section class="card controls" aria-hidden="true">
-				<div class="row">
-					<div>
-						<label for="apiKey">API Key</label>
-						<input id="apiKey" type="text" placeholder="AIza..." />
-					</div>
-					<div>
-						<label for="clientId">OAuth Client ID (required for private)</label>
-						<input id="clientId" type="text" placeholder="xxxxx.apps.googleusercontent.com" />
-					</div>
-					<div>
-						<label for="folderId">Folder ID (optional)</label>
-						<input id="folderId" type="text" placeholder="Drive folder ID" value="1G2f2Nbeadv9v3_SW3ONLhjqIzDkz84vs" />
-					</div>
-					<div>
-						<label for="pageSize">Max results</label>
-						<input id="pageSize" type="number" min="1" max="500" value="100" />
-					</div>
-				</div>
-				<div class="actions">
-					<button id="connectBtn">Connect & Load Images</button>
-					<button id="publicBtn" class="secondary">Load Public Folder</button>
-					<button id="refreshBtn" class="secondary" disabled>Refresh</button>
-					<button id="signOutBtn" class="secondary" disabled>Sign Out</button>
-				</div>
-				<div class="status" id="status">Not connected.</div>
-			</section>
-
-			<div class="layout" style="margin-top: 16px;">
-				<section class="card main-column">
-					<div class="sort-bar">
-						<div class="field">
-							<label for="sortOrder">Sort by</label>
-							<select id="sortOrder">
-								<option value="modifiedTime desc" selected>Newest updates first</option>
-								<option value="modifiedTime asc">Oldest updates first</option>
-								<option value="createdTime desc">Newest uploads first</option>
-								<option value="createdTime asc">Oldest uploads first</option>
-								<option value="name asc">Name A → Z</option>
-								<option value="name desc">Name Z → A</option>
-							</select>
+			<section class="tab-panel active" id="tab-home" role="tabpanel">
+				<section class="card controls" aria-hidden="true">
+					<div class="row">
+						<div>
+							<label for="apiKey">API Key</label>
+							<input id="apiKey" type="text" placeholder="AIza..." />
+						</div>
+						<div>
+							<label for="clientId">OAuth Client ID (required for private)</label>
+							<input id="clientId" type="text" placeholder="xxxxx.apps.googleusercontent.com" />
+						</div>
+						<div>
+							<label for="folderId">Folder ID (optional)</label>
+							<input id="folderId" type="text" placeholder="Drive folder ID" value="1G2f2Nbeadv9v3_SW3ONLhjqIzDkz84vs" />
+						</div>
+						<div>
+							<label for="pageSize">Max results</label>
+							<input id="pageSize" type="number" min="1" max="500" value="100" />
 						</div>
 					</div>
-					<div id="gallery" class="grid"></div>
-					<div id="emptyState" class="empty" hidden>No images found.</div>
+					<div class="actions">
+						<button id="connectBtn">Connect & Load Images</button>
+						<button id="publicBtn" class="secondary">Load Public Folder</button>
+						<button id="refreshBtn" class="secondary" disabled>Refresh</button>
+						<button id="signOutBtn" class="secondary" disabled>Sign Out</button>
+					</div>
+					<div class="status" id="status">Not connected.</div>
 				</section>
-				<section class="card side-column">
-					<h2 class="section-title">Rham's Favorites</h2>
-					<div id="gallerySecondary" class="grid"></div>
-					<div id="emptyStateSecondary" class="empty" hidden>No images found.</div>
-				</section>
-			</div>
+
+				<div class="layout" style="margin-top: 16px;">
+					<section class="card main-column">
+						<div class="sort-bar">
+							<div class="field">
+								<label for="sortOrder">Sort by</label>
+								<select id="sortOrder">
+									<option value="modifiedTime desc" selected>Newest updates first</option>
+									<option value="modifiedTime asc">Oldest updates first</option>
+									<option value="createdTime desc">Newest uploads first</option>
+									<option value="createdTime asc">Oldest uploads first</option>
+									<option value="name asc">Name A → Z</option>
+									<option value="name desc">Name Z → A</option>
+								</select>
+							</div>
+						</div>
+						<div id="gallery" class="grid"></div>
+						<div id="emptyState" class="empty" hidden>No images found.</div>
+					</section>
+					<section class="card side-column">
+						<h2 class="section-title">Rham's Favorites</h2>
+						<div id="gallerySecondary" class="grid"></div>
+						<div id="emptyStateSecondary" class="empty" hidden>No images found.</div>
+					</section>
+				</div>
+			</section>
+
+			<section class="tab-panel" id="tab-photobooth" role="tabpanel">
+				<div class="photobooth-layout" style="margin-top: 16px;">
+					<section class="card">
+						<h2 class="section-title">PhotoBooth</h2>
+						<p>Select up to 9 photos from your drives to build a collage.</p>
+						<div class="photobooth-list">
+							<div id="photoboothGrid" class="photo-grid"></div>
+						</div>
+						<div class="status" id="boothStatus">Choose your favorites to start.</div>
+					</section>
+					<section class="card photobooth-preview">
+						<h2 class="section-title">Collage Preview</h2>
+						<div class="collage-frame">
+							<canvas id="collageCanvas" width="1200" height="1200"></canvas>
+						</div>
+						<div class="booth-actions">
+							<button id="downloadCollage">Download collage</button>
+							<button id="clearSelection" class="secondary" type="button">Clear selection</button>
+						</div>
+					</section>
+				</div>
+			</section>
 		</main>
 
 		<div class="modal" id="imageModal" aria-hidden="true">

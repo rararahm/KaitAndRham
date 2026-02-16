@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>PhotoBooth</title>
+		<style>
+			:root {
+				color-scheme: light;
+				--bg: #fff7f9;
+				--panel: rgba(255, 255, 255, 0.85);
+				--text: #2b2a2a;
+				--muted: #7c6f7b;
+				--accent: #f59ab8;
+				--accent-strong: #e874a0;
+				--border: rgba(242, 190, 204, 0.8);
+				--shadow: 0 24px 60px rgba(232, 116, 160, 0.18);
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			body {
+				margin: 0;
+				font-family: "Playfair Display", "Times New Roman", serif;
+				background: radial-gradient(circle at top, #fff1f5 0%, #fde8ef 40%, #fff 100%);
+				color: var(--text);
+				min-height: 100vh;
+				padding-top: 72px;
+			}
+
+			body::before {
+				content: "";
+				position: fixed;
+				inset: 0;
+				background-image:
+					radial-gradient(circle at 20% 20%, rgba(245, 154, 184, 0.18), transparent 45%),
+					radial-gradient(circle at 80% 10%, rgba(232, 116, 160, 0.16), transparent 50%),
+					radial-gradient(circle at 70% 80%, rgba(250, 210, 224, 0.45), transparent 55%);
+				z-index: -1;
+			}
+
+			header {
+				padding: 48px 20px 12px;
+				max-width: 1100px;
+				margin: 0 auto;
+				text-align: center;
+			}
+
+			h1 {
+				font-size: 36px;
+				letter-spacing: 0.5px;
+				margin: 0 0 10px;
+				font-weight: 600;
+			}
+
+			p {
+				margin: 0 auto 16px;
+				color: var(--muted);
+				max-width: 620px;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 15px;
+			}
+
+			.panel {
+				max-width: 1100px;
+				margin: 0 auto;
+				padding: 20px 20px 60px;
+			}
+
+			.card {
+				background: var(--panel);
+				border: 1px solid var(--border);
+				border-radius: 20px;
+				padding: 20px;
+				box-shadow: var(--shadow);
+				backdrop-filter: blur(12px);
+			}
+
+			label {
+				display: block;
+				font-size: 12px;
+				color: var(--muted);
+				margin-bottom: 6px;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				letter-spacing: 0.3px;
+				text-transform: uppercase;
+			}
+
+			input {
+				width: 100%;
+				padding: 11px 14px;
+				border-radius: 14px;
+				border: 1px solid var(--border);
+				background: rgba(255, 255, 255, 0.8);
+				color: var(--text);
+				font-family: "Inter", "Segoe UI", sans-serif;
+				box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+			}
+
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+				margin-top: 8px;
+				justify-content: center;
+			}
+
+			button {
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+				color: white;
+				border: none;
+				border-radius: 999px;
+				padding: 10px 18px;
+				font-weight: 600;
+				cursor: pointer;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				letter-spacing: 0.2px;
+				box-shadow: 0 14px 26px rgba(232, 116, 160, 0.3);
+				transition: transform 0.15s ease, box-shadow 0.15s ease;
+			}
+
+			button:active {
+				transform: scale(0.97);
+			}
+
+			button.secondary {
+				background: rgba(255, 255, 255, 0.7);
+				color: var(--text);
+				border: 1px solid var(--border);
+				box-shadow: none;
+			}
+
+			.status {
+				margin-top: 12px;
+				font-size: 13px;
+				color: var(--muted);
+				text-align: center;
+				font-family: "Inter", "Segoe UI", sans-serif;
+			}
+
+			.tagline {
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 14px;
+				color: var(--muted);
+				letter-spacing: 1.6px;
+				text-transform: uppercase;
+				margin-bottom: 6px;
+			}
+
+			.love-counter {
+				margin: 6px auto 14px;
+				display: inline-flex;
+				align-items: center;
+				gap: 10px;
+				padding: 8px 16px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.75);
+				border: 1px solid rgba(232, 116, 160, 0.35);
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				color: var(--text);
+				box-shadow: 0 10px 20px rgba(232, 116, 160, 0.18);
+			}
+
+			.love-counter strong {
+				font-weight: 600;
+				letter-spacing: 0.3px;
+			}
+
+			.love-counter span {
+				color: var(--muted);
+				letter-spacing: 0.2px;
+			}
+
+			.controls {
+				display: none;
+			}
+
+			.top-nav {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				z-index: 800;
+			}
+
+			.nav-inner {
+				max-width: 1100px;
+				margin: 0 auto;
+				padding: 12px 20px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+			}
+
+			.nav-title {
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				letter-spacing: 1.8px;
+				text-transform: uppercase;
+				color: var(--muted);
+			}
+
+			.nav-links {
+				display: inline-flex;
+				gap: 10px;
+				padding: 6px;
+				border-radius: 999px;
+				background: rgba(255, 255, 255, 0.75);
+				border: 1px solid rgba(232, 116, 160, 0.25);
+				box-shadow: 0 10px 20px rgba(232, 116, 160, 0.15);
+			}
+
+			.nav-links a {
+				display: inline-flex;
+				align-items: center;
+				gap: 6px;
+				text-decoration: none;
+				padding: 8px 16px;
+				border-radius: 999px;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--muted);
+				transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
+			}
+
+			.nav-links a:active {
+				transform: scale(0.96);
+			}
+
+			.nav-links a.active {
+				background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+				color: white;
+				box-shadow: 0 12px 20px rgba(232, 116, 160, 0.3);
+			}
+
+			.photobooth-layout {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) 360px;
+				gap: 18px;
+				align-items: start;
+			}
+
+			.photobooth-list {
+				max-height: 520px;
+				overflow: auto;
+				padding-right: 4px;
+			}
+
+			.photo-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+				gap: 10px;
+			}
+
+			.photo-option {
+				position: relative;
+				border-radius: 14px;
+				overflow: hidden;
+				border: 1px solid rgba(242, 190, 204, 0.6);
+				background: white;
+				cursor: pointer;
+				transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+			}
+
+			.photo-option img {
+				display: block;
+				width: 100%;
+				height: 120px;
+				object-fit: cover;
+			}
+
+			.photo-option.selected {
+				border-color: var(--accent-strong);
+				box-shadow: 0 12px 20px rgba(232, 116, 160, 0.2);
+				transform: translateY(-2px);
+			}
+
+			.photo-option input {
+				position: absolute;
+				opacity: 0;
+				pointer-events: none;
+			}
+
+			.photobooth-preview {
+				display: grid;
+				gap: 12px;
+			}
+
+			.collage-frame {
+				background: rgba(255, 255, 255, 0.9);
+				border-radius: 18px;
+				border: 1px solid rgba(242, 190, 204, 0.6);
+				padding: 12px;
+				box-shadow: 0 14px 28px rgba(232, 116, 160, 0.15);
+			}
+
+			.collage-frame canvas {
+				width: 100%;
+				height: auto;
+				display: block;
+				border-radius: 12px;
+				background: #fff;
+			}
+
+			.booth-actions {
+				display: flex;
+				gap: 10px;
+				flex-wrap: wrap;
+			}
+
+			.crop-modal {
+				position: fixed;
+				inset: 0;
+				display: none;
+				align-items: center;
+				justify-content: center;
+				background: rgba(17, 14, 20, 0.65);
+				backdrop-filter: blur(6px);
+				z-index: 1000;
+				padding: 24px;
+			}
+
+			.crop-modal.open {
+				display: flex;
+			}
+
+			.crop-modal-content {
+				background: rgba(255, 255, 255, 0.98);
+				border-radius: 22px;
+				box-shadow: 0 28px 60px rgba(0, 0, 0, 0.25);
+				padding: 18px;
+				max-width: 520px;
+				width: 100%;
+				position: relative;
+			}
+
+			.crop-modal-content h3 {
+				margin: 0 0 8px;
+				font-size: 18px;
+				font-weight: 600;
+			}
+
+			.crop-modal-content p {
+				margin: 0 0 12px;
+				font-size: 13px;
+				color: var(--muted);
+			}
+
+			.crop-canvas {
+				width: 100%;
+				display: block;
+				border-radius: 16px;
+				border: 1px solid rgba(242, 190, 204, 0.6);
+				background: #fff;
+			}
+
+			.crop-actions {
+				display: flex;
+				gap: 10px;
+				justify-content: flex-end;
+				margin-top: 12px;
+			}
+
+			.crop-close {
+				position: absolute;
+				top: 12px;
+				right: 12px;
+				border: none;
+				background: rgba(255, 255, 255, 0.9);
+				width: 32px;
+				height: 32px;
+				border-radius: 50%;
+				font-size: 18px;
+				cursor: pointer;
+				box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+			}
+
+			.section-title {
+				margin: 0 0 10px;
+				font-size: 18px;
+				letter-spacing: 0.4px;
+				font-weight: 600;
+			}
+
+			.spotify-floating {
+				position: fixed;
+				right: 18px;
+				bottom: 18px;
+				width: 320px;
+				height: 152px;
+				border-radius: 18px;
+				overflow: hidden;
+				box-shadow: 0 18px 30px rgba(0, 0, 0, 0.2);
+				z-index: 900;
+				background: #fff;
+			}
+
+			.spotify-floating iframe {
+				width: 100%;
+				height: 100%;
+				border: 0;
+				display: block;
+			}
+
+			@media (max-width: 720px) {
+				body {
+					padding-top: 88px;
+				}
+
+				.nav-inner {
+					flex-direction: column;
+					align-items: center;
+				}
+
+				.nav-links {
+					width: 100%;
+					justify-content: center;
+				}
+
+				.panel {
+					padding: 16px 16px 48px;
+				}
+
+				.photobooth-layout {
+					grid-template-columns: 1fr;
+				}
+
+				.photo-grid {
+					grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+				}
+
+				.photo-option img {
+					height: 100px;
+				}
+
+				.spotify-floating {
+					left: 12px;
+					right: 12px;
+					bottom: 12px;
+					width: auto;
+					height: 152px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="top-nav">
+			<div class="nav-inner">
+				<div class="nav-title">Our Story</div>
+				<div class="nav-links" aria-label="Pages">
+					<a href="index.html">Home</a>
+					<a class="active" href="photobooth.html">PhotoBooth</a>
+				</div>
+			</div>
+		</nav>
+		<header>
+			<div class="tagline">Our Story</div>
+			<div class="love-counter" aria-live="polite">
+				<strong>Loving you for</strong>
+				<span id="loveCounter">Loading...</span>
+			</div>
+			<h1>PhotoBooth</h1>
+			<p>Pick your favorite moments and build a printable collage.</p>
+		</header>
+
+		<main class="panel">
+			<section class="card controls" aria-hidden="true">
+				<div class="row">
+					<div>
+						<label for="apiKey">API Key</label>
+						<input id="apiKey" type="text" placeholder="AIza..." />
+					</div>
+					<div>
+						<label for="folderId">Folder ID (optional)</label>
+						<input id="folderId" type="text" placeholder="Drive folder ID" value="1G2f2Nbeadv9v3_SW3ONLhjqIzDkz84vs" />
+					</div>
+					<div>
+						<label for="pageSize">Max results</label>
+						<input id="pageSize" type="number" min="1" max="500" value="120" />
+					</div>
+				</div>
+				<div class="actions">
+					<button id="publicBtn" class="secondary">Load Photos</button>
+				</div>
+				<div class="status" id="status">Loading photos...</div>
+			</section>
+
+			<div class="photobooth-layout" style="margin-top: 16px;">
+				<section class="card">
+					<h2 class="section-title">PhotoBooth</h2>
+					<p>Select up to 9 photos from your drives to build a collage.</p>
+					<div class="photobooth-list">
+						<div id="photoboothGrid" class="photo-grid"></div>
+					</div>
+					<div class="status" id="boothStatus">Choose your favorites to start.</div>
+				</section>
+				<section class="card photobooth-preview">
+					<h2 class="section-title">Collage Preview</h2>
+					<div class="collage-frame">
+						<canvas id="collageCanvas" width="1200" height="1200"></canvas>
+					</div>
+					<div class="booth-actions">
+						<button id="downloadCollage">Download collage</button>
+						<button id="clearSelection" class="secondary" type="button">Clear selection</button>
+					</div>
+				</section>
+			</div>
+		</main>
+
+		<div class="crop-modal" id="cropModal" aria-hidden="true">
+			<div class="crop-modal-content" role="dialog" aria-modal="true" aria-label="Adjust photo crop">
+				<button class="crop-close" id="cropClose" aria-label="Close">×</button>
+				<h3>Adjust crop</h3>
+				<p>Drag the photo to reposition the crop inside the square.</p>
+				<canvas id="cropCanvas" class="crop-canvas" width="480" height="480"></canvas>
+				<div class="crop-actions">
+					<button id="flipHorizontal" class="secondary" type="button">Flip</button>
+					<button id="rotateCw" class="secondary" type="button">Rotate Clockwise</button>
+					<button id="cropReset" class="secondary" type="button">Reset</button>
+					<button id="cropDone" type="button">Done</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="spotify-floating" aria-label="Spotify playlist">
+			<iframe
+				src="https://open.spotify.com/embed/playlist/36dQ7Sdck17FTGjA5yfBAf?utm_source=generator"
+				allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+				loading="lazy"
+			></iframe>
+		</div>
+
+		<script>
+			const DEFAULT_API_KEY = "AIzaSyCbqmjlzJulYTP5zBuA_Qm8nbnnM7sRVio";
+			const SECONDARY_FOLDER_ID = "13N949T2B3LnTsyAvhFsiAX6UitweJxjh";
+
+			const apiKeyInput = document.getElementById("apiKey");
+			const folderIdInput = document.getElementById("folderId");
+			const pageSizeInput = document.getElementById("pageSize");
+			const statusEl = document.getElementById("status");
+			const photoboothGrid = document.getElementById("photoboothGrid");
+			const boothStatusEl = document.getElementById("boothStatus");
+			const collageCanvas = document.getElementById("collageCanvas");
+			const downloadCollageBtn = document.getElementById("downloadCollage");
+			const clearSelectionBtn = document.getElementById("clearSelection");
+			const loveCounterEl = document.getElementById("loveCounter");
+			const publicBtn = document.getElementById("publicBtn");
+			const cropModal = document.getElementById("cropModal");
+			const cropCanvas = document.getElementById("cropCanvas");
+			const cropClose = document.getElementById("cropClose");
+			const cropDone = document.getElementById("cropDone");
+			const cropReset = document.getElementById("cropReset");
+			const flipHorizontalBtn = document.getElementById("flipHorizontal");
+			const rotateCwBtn = document.getElementById("rotateCw");
+
+			let selectedPhotos = [];
+			let cachedMainFiles = [];
+			let cachedSecondaryFiles = [];
+			let collageLayout = [];
+			let activeCropIndex = null;
+			let cropDrag = null;
+
+			if (DEFAULT_API_KEY) {
+				apiKeyInput.value = DEFAULT_API_KEY;
+			}
+
+			function setStatus(message) {
+				statusEl.textContent = message;
+			}
+
+			function updateLoveCounter() {
+				const start = new Date(2022, 11, 8, 0, 0, 0);
+				const now = new Date();
+				if (now <= start) {
+					loveCounterEl.textContent = "0y 0m 0d 0h 0m 0s";
+					return;
+				}
+
+				let years = now.getFullYear() - start.getFullYear();
+				let months = now.getMonth() - start.getMonth();
+				let days = now.getDate() - start.getDate();
+				let hours = now.getHours() - start.getHours();
+				let minutes = now.getMinutes() - start.getMinutes();
+				let seconds = now.getSeconds() - start.getSeconds();
+
+				if (seconds < 0) {
+					seconds += 60;
+					minutes -= 1;
+				}
+
+				if (minutes < 0) {
+					minutes += 60;
+					hours -= 1;
+				}
+
+				if (hours < 0) {
+					hours += 24;
+					days -= 1;
+				}
+
+				if (days < 0) {
+					months -= 1;
+					const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+					days += prevMonth.getDate();
+				}
+
+				if (months < 0) {
+					months += 12;
+					years -= 1;
+				}
+
+				const parts = [
+					`${years}y`,
+					`${months}m`,
+					`${days}d`,
+					`${hours}h`,
+					`${minutes}m`,
+					`${seconds}s`,
+				];
+				loveCounterEl.textContent = parts.join(" ");
+			}
+
+			function buildSizedImageUrl(link, size) {
+				if (!link) {
+					return "";
+				}
+				if (/=s\d+/.test(link)) {
+					return link.replace(/=s\d+/, `=s${size}`);
+				}
+				return `${link}=s${size}`;
+			}
+
+			function normalizeFile(file) {
+				const previewUrl = file.thumbnailLink
+					? buildSizedImageUrl(file.thumbnailLink, 300)
+					: `https://drive.google.com/thumbnail?id=${file.id}&sz=w300`;
+				const fullUrl = file.thumbnailLink
+					? buildSizedImageUrl(file.thumbnailLink, 1600)
+					: `https://drive.google.com/uc?export=view&id=${file.id}`;
+				return { ...file, previewUrl, fullUrl };
+			}
+
+			function renderPhotoBoothList() {
+				photoboothGrid.innerHTML = "";
+				const combined = [
+					...cachedMainFiles.map((file) => ({ ...normalizeFile(file), source: "Main" })),
+					...cachedSecondaryFiles.map((file) => ({ ...normalizeFile(file), source: "Rham" })),
+				];
+
+				if (!combined.length) {
+					boothStatusEl.textContent = "No images available yet.";
+					return;
+				}
+
+				combined.forEach((file) => {
+					const option = document.createElement("label");
+					option.className = "photo-option";
+
+					const input = document.createElement("input");
+					input.type = "checkbox";
+					input.value = file.id;
+					input.dataset.full = file.fullUrl;
+					input.dataset.preview = file.previewUrl;
+					input.dataset.name = file.name || "Photo";
+					input.addEventListener("change", () => handlePhotoSelection(input, option));
+
+					const img = document.createElement("img");
+					img.src = file.previewUrl;
+					img.alt = file.name || "Photo";
+
+					option.appendChild(input);
+					option.appendChild(img);
+					photoboothGrid.appendChild(option);
+				});
+
+				updateBoothStatus();
+			}
+
+			function updateBoothStatus(message) {
+				const count = selectedPhotos.length;
+				boothStatusEl.textContent = message || `${count} selected · up to 9`;
+			}
+
+			function handlePhotoSelection(input, option) {
+				const isChecked = input.checked;
+				if (isChecked && selectedPhotos.length >= 9) {
+					input.checked = false;
+					updateBoothStatus("Limit reached: choose up to 9 photos.");
+					return;
+				}
+
+				if (isChecked) {
+					selectedPhotos.push({
+						id: input.value,
+						fullUrl: input.dataset.full,
+						previewUrl: input.dataset.preview,
+						name: input.dataset.name,
+						crop: { x: 0, y: 0, rotate: 0, flipX: false },
+					});
+					option.classList.add("selected");
+				} else {
+					selectedPhotos = selectedPhotos.filter((photo) => photo.id !== input.value);
+					option.classList.remove("selected");
+				}
+
+				updateBoothStatus();
+				renderCollage();
+			}
+
+			function clearSelection() {
+				selectedPhotos = [];
+				photoboothGrid.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+					checkbox.checked = false;
+					checkbox.parentElement.classList.remove("selected");
+				});
+				renderCollage();
+				updateBoothStatus();
+			}
+
+			async function renderCollage() {
+				const ctx = collageCanvas.getContext("2d");
+				const size = collageCanvas.width;
+				ctx.clearRect(0, 0, size, size);
+				ctx.fillStyle = "#fff";
+				ctx.fillRect(0, 0, size, size);
+				collageLayout = [];
+
+				if (!selectedPhotos.length) {
+					ctx.fillStyle = "#c4a8b6";
+					ctx.font = "20px 'Inter', sans-serif";
+					ctx.textAlign = "center";
+					ctx.fillText("Select photos to build your collage", size / 2, size / 2);
+					return;
+				}
+
+				const count = selectedPhotos.length;
+				const gridSize = count <= 4 ? 2 : count <= 9 ? 3 : 4;
+				const gap = 24;
+				const totalGap = gap * (gridSize + 1);
+				const cellSize = (size - totalGap) / gridSize;
+				const loadImages = selectedPhotos.map((photo) =>
+					loadImage(photo.fullUrl)
+				);
+
+				try {
+					const images = await Promise.all(loadImages);
+					images.forEach((img, index) => {
+						const row = Math.floor(index / gridSize);
+						const col = index % gridSize;
+						const x = gap + col * (cellSize + gap);
+						const y = gap + row * (cellSize + gap);
+						const crop = selectedPhotos[index]?.crop || { x: 0, y: 0, rotate: 0 };
+						const rotatedSource = getRotatedSource(img, crop.rotate);
+						drawCover(ctx, rotatedSource, x, y, cellSize, cellSize, crop);
+						collageLayout.push({ index, x, y, size: cellSize });
+					});
+				} catch (error) {
+					updateBoothStatus("Some images could not be loaded for download.");
+				}
+			}
+
+			function loadImage(url) {
+				return new Promise((resolve, reject) => {
+					const img = new Image();
+					img.crossOrigin = "anonymous";
+					img.onload = () => resolve(img);
+					img.onerror = () => reject(new Error("Failed to load image"));
+					img.src = url;
+				});
+			}
+
+			function getCoverOffsets(img, width, height, crop) {
+				const imgRatio = img.width / img.height;
+				const targetRatio = width / height;
+				let drawWidth = width;
+				let drawHeight = height;
+				let offsetX = 0;
+				let offsetY = 0;
+
+				if (imgRatio > targetRatio) {
+					drawWidth = height * imgRatio;
+					offsetX = (width - drawWidth) / 2;
+				} else {
+					drawHeight = width / imgRatio;
+					offsetY = (height - drawHeight) / 2;
+				}
+
+				const overflowX = Math.max(0, drawWidth - width);
+				const overflowY = Math.max(0, drawHeight - height);
+				const panX = overflowX ? (overflowX / 2) * (crop?.x || 0) : 0;
+				const panY = overflowY ? (overflowY / 2) * (crop?.y || 0) : 0;
+
+				return {
+					drawWidth,
+					drawHeight,
+					offsetX: offsetX + panX,
+					offsetY: offsetY + panY,
+					overflowX,
+					overflowY,
+				};
+			}
+
+			function drawCover(ctx, img, x, y, width, height, crop) {
+				const offsets = getCoverOffsets(img, width, height, crop);
+				ctx.save();
+				ctx.beginPath();
+				ctx.rect(x, y, width, height);
+				ctx.clip();
+				ctx.translate(x + width / 2, y + height / 2);
+				ctx.scale(crop?.flipX ? -1 : 1, 1);
+				ctx.drawImage(
+					img,
+					-width / 2 + offsets.offsetX,
+					-height / 2 + offsets.offsetY,
+					offsets.drawWidth,
+					offsets.drawHeight
+				);
+				ctx.restore();
+			}
+
+			function getRotatedSource(img, rotation) {
+				const normalized = ((rotation || 0) % 360 + 360) % 360;
+				if (normalized === 0) {
+					return img;
+				}
+
+				const canvas = document.createElement("canvas");
+				const ctx = canvas.getContext("2d");
+				if (normalized === 90 || normalized === 270) {
+					canvas.width = img.height;
+					canvas.height = img.width;
+				} else {
+					canvas.width = img.width;
+					canvas.height = img.height;
+				}
+
+				ctx.translate(canvas.width / 2, canvas.height / 2);
+				ctx.rotate((normalized * Math.PI) / 180);
+				ctx.drawImage(img, -img.width / 2, -img.height / 2);
+				return canvas;
+			}
+
+			async function openCropEditor(index) {
+				activeCropIndex = index;
+				cropModal.classList.add("open");
+				cropModal.setAttribute("aria-hidden", "false");
+				await renderCropEditor();
+			}
+
+			function closeCropEditor() {
+				activeCropIndex = null;
+				cropModal.classList.remove("open");
+				cropModal.setAttribute("aria-hidden", "true");
+				cropDrag = null;
+			}
+
+			async function renderCropEditor() {
+				if (activeCropIndex === null) {
+					return;
+				}
+
+				const photo = selectedPhotos[activeCropIndex];
+				if (!photo) {
+					return;
+				}
+
+				const ctx = cropCanvas.getContext("2d");
+				const size = cropCanvas.width;
+				ctx.clearRect(0, 0, size, size);
+				ctx.fillStyle = "#fff";
+				ctx.fillRect(0, 0, size, size);
+
+				try {
+					const img = await loadImage(photo.fullUrl);
+					const rotatedSource = getRotatedSource(img, photo.crop.rotate);
+					drawCover(ctx, rotatedSource, 0, 0, size, size, photo.crop);
+				} catch (error) {
+					ctx.fillStyle = "#c4a8b6";
+					ctx.font = "16px 'Inter', sans-serif";
+					ctx.textAlign = "center";
+					ctx.fillText("Failed to load image", size / 2, size / 2);
+				}
+			}
+
+			function handleCropPointerDown(event) {
+				if (activeCropIndex === null) {
+					return;
+				}
+				const photo = selectedPhotos[activeCropIndex];
+				if (!photo) {
+					return;
+				}
+				const rect = cropCanvas.getBoundingClientRect();
+				cropDrag = {
+					startX: event.clientX - rect.left,
+					startY: event.clientY - rect.top,
+					initialX: photo.crop.x,
+					initialY: photo.crop.y,
+				};
+			}
+
+			async function handleCropPointerMove(event) {
+				if (!cropDrag || activeCropIndex === null) {
+					return;
+				}
+				const photo = selectedPhotos[activeCropIndex];
+				if (!photo) {
+					return;
+				}
+				const rect = cropCanvas.getBoundingClientRect();
+				const currentX = event.clientX - rect.left;
+				const currentY = event.clientY - rect.top;
+				const deltaX = currentX - cropDrag.startX;
+				const deltaY = currentY - cropDrag.startY;
+
+				try {
+					const img = await loadImage(photo.fullUrl);
+					const rotatedSource = getRotatedSource(img, photo.crop.rotate);
+					const offsets = getCoverOffsets(rotatedSource, cropCanvas.width, cropCanvas.height, { x: 0, y: 0 });
+					const maxPanX = offsets.overflowX / 2 || 0;
+					const maxPanY = offsets.overflowY / 2 || 0;
+
+					let newX = cropDrag.initialX;
+					let newY = cropDrag.initialY;
+					if (maxPanX) {
+						newX += deltaX / maxPanX;
+					}
+					if (maxPanY) {
+						newY += deltaY / maxPanY;
+					}
+
+					photo.crop.x = Math.max(-1, Math.min(1, newX));
+					photo.crop.y = Math.max(-1, Math.min(1, newY));
+					await renderCropEditor();
+				} catch (error) {
+					// Ignore drag errors
+				}
+			}
+
+			function handleCropPointerUp() {
+				cropDrag = null;
+			}
+
+			function downloadCollage() {
+				if (!selectedPhotos.length) {
+					updateBoothStatus("Pick at least one photo before downloading.");
+					return;
+				}
+
+				try {
+					const url = collageCanvas.toDataURL("image/png");
+					const link = document.createElement("a");
+					link.href = url;
+					link.download = "photobooth-collage.png";
+					link.click();
+				} catch (error) {
+					updateBoothStatus("Download blocked. Try opening the playlist images directly.");
+				}
+			}
+
+			async function fetchDriveImages({ apiKey, folderId, pageSize, orderBy }) {
+				const baseQuery = "mimeType contains 'image/' and trashed = false";
+				const q = `'${folderId}' in parents and ${baseQuery}`;
+				const params = new URLSearchParams({
+					q,
+					pageSize: String(pageSize),
+					fields: "files(id,name,mimeType,thumbnailLink,webViewLink)",
+					orderBy,
+					key: apiKey,
+				});
+
+				const response = await fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`);
+				if (!response.ok) {
+					const errorBody = await response.json().catch(() => ({}));
+					throw new Error(errorBody?.error?.message || "Failed to load folder.");
+				}
+				const data = await response.json();
+				return data.files || [];
+			}
+
+			async function handlePublicLoad() {
+				const apiKey = (apiKeyInput.value.trim() || DEFAULT_API_KEY).trim();
+				const folderId = folderIdInput.value.trim();
+				if (!apiKey || !folderId) {
+					setStatus("Provide API Key and Folder ID to load photos.");
+					return;
+				}
+
+				setStatus("Fetching photos...");
+
+				const pageSize = Math.max(1, Math.min(500, Number(pageSizeInput.value) || 120));
+				const orderBy = "modifiedTime desc";
+
+				try {
+					const [mainFiles, secondaryFiles] = await Promise.all([
+						fetchDriveImages({
+							apiKey,
+							folderId,
+							pageSize,
+							orderBy,
+						}),
+						fetchDriveImages({
+							apiKey,
+							folderId: SECONDARY_FOLDER_ID,
+							pageSize,
+							orderBy,
+						}),
+					]);
+
+					cachedMainFiles = mainFiles;
+					cachedSecondaryFiles = secondaryFiles;
+					renderPhotoBoothList();
+					setStatus(`Loaded ${mainFiles.length + secondaryFiles.length} photos.`);
+				} catch (error) {
+					setStatus(`Error fetching photos: ${error.message}`);
+				}
+			}
+
+			publicBtn.addEventListener("click", handlePublicLoad);
+			downloadCollageBtn.addEventListener("click", downloadCollage);
+			clearSelectionBtn.addEventListener("click", clearSelection);
+			collageCanvas.addEventListener("click", (event) => {
+				const rect = collageCanvas.getBoundingClientRect();
+				const x = ((event.clientX - rect.left) / rect.width) * collageCanvas.width;
+				const y = ((event.clientY - rect.top) / rect.height) * collageCanvas.height;
+
+				const target = collageLayout.find(
+					(entry) => x >= entry.x && x <= entry.x + entry.size && y >= entry.y && y <= entry.y + entry.size
+				);
+				if (target) {
+					openCropEditor(target.index);
+				}
+			});
+
+			cropCanvas.addEventListener("pointerdown", handleCropPointerDown);
+			cropCanvas.addEventListener("pointermove", handleCropPointerMove);
+			cropCanvas.addEventListener("pointerup", handleCropPointerUp);
+			cropCanvas.addEventListener("pointerleave", handleCropPointerUp);
+			cropClose.addEventListener("click", () => {
+				closeCropEditor();
+				renderCollage();
+			});
+			cropDone.addEventListener("click", () => {
+				closeCropEditor();
+				renderCollage();
+			});
+			cropReset.addEventListener("click", async () => {
+				if (activeCropIndex === null) {
+					return;
+				}
+				const photo = selectedPhotos[activeCropIndex];
+				if (!photo) {
+					return;
+				}
+				photo.crop = { x: 0, y: 0, rotate: 0, flipX: false };
+				await renderCropEditor();
+			});
+			flipHorizontalBtn.addEventListener("click", async () => {
+				if (activeCropIndex === null) {
+					return;
+				}
+				const photo = selectedPhotos[activeCropIndex];
+				if (!photo) {
+					return;
+				}
+				photo.crop.flipX = !photo.crop.flipX;
+				await renderCropEditor();
+			});
+			rotateCwBtn.addEventListener("click", async () => {
+				if (activeCropIndex === null) {
+					return;
+				}
+				const photo = selectedPhotos[activeCropIndex];
+				if (!photo) {
+					return;
+				}
+				photo.crop.rotate = (photo.crop.rotate + 90) % 360;
+				await renderCropEditor();
+			});
+			cropModal.addEventListener("click", (event) => {
+				if (event.target === cropModal) {
+					closeCropEditor();
+					renderCollage();
+				}
+			});
+
+			window.addEventListener("load", () => {
+				updateLoveCounter();
+				window.setInterval(updateLoveCounter, 1000);
+				if ((apiKeyInput.value.trim() || DEFAULT_API_KEY).trim()) {
+					handlePublicLoad();
+				}
+			});
+		</script>
+	</body>
+</html>
