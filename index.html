@@ -49,14 +49,6 @@
 			}
 
 			h1 {
-				<div class="tabs" role="tablist" aria-label="Journal tabs">
-					<button class="tab-button active" type="button" data-tab="home" role="tab" aria-selected="true">
-						Home
-					</button>
-					<button class="tab-button" type="button" data-tab="photobooth" role="tab" aria-selected="false">
-						PhotoBooth
-					</button>
-				</div>
 				font-size: 36px;
 				letter-spacing: 0.5px;
 				margin: 0 0 10px;
@@ -327,6 +319,91 @@
 
 			.controls {
 				display: none;
+			}
+
+			.today-highlights {
+				margin: 0 auto 20px;
+				max-width: 1100px;
+				overflow: hidden;
+			}
+
+			.highlights-title {
+				text-align: center;
+				font-family: "Inter", "Segoe UI", sans-serif;
+				font-size: 13px;
+				font-weight: 600;
+				color: var(--muted);
+				letter-spacing: 1.4px;
+				text-transform: uppercase;
+				margin-bottom: 12px;
+			}
+
+			.marquee-container {
+				background: var(--panel);
+				border: 1px solid var(--border);
+				border-radius: 16px;
+				overflow: hidden;
+				box-shadow: 0 12px 24px rgba(245, 154, 184, 0.12);
+				backdrop-filter: blur(12px);
+				position: relative;
+			}
+
+			.marquee-container::before,
+			.marquee-container::after {
+				content: "";
+				position: absolute;
+				top: 0;
+				bottom: 0;
+				width: 60px;
+				z-index: 2;
+				pointer-events: none;
+			}
+
+			.marquee-container::before {
+				left: 0;
+				background: linear-gradient(90deg, rgba(255, 247, 249, 1), rgba(255, 247, 249, 0));
+			}
+
+			.marquee-container::after {
+				right: 0;
+				background: linear-gradient(270deg, rgba(255, 247, 249, 1), rgba(255, 247, 249, 0));
+			}
+
+			.marquee {
+				display: flex;
+				gap: 12px;
+				padding: 12px;
+				will-change: transform;
+				transform: translateX(0);
+			}
+
+			.marquee:hover {
+				animation-play-state: paused;
+			}
+
+			@keyframes marquee {
+				0% {
+					transform: translateX(0);
+				}
+				100% {
+					transform: translateX(-50%);
+				}
+			}
+
+			.marquee-item {
+				flex-shrink: 0;
+				width: 200px;
+				height: 150px;
+				border-radius: 12px;
+				overflow: hidden;
+				cursor: pointer;
+				transition: transform 0.2s ease, box-shadow 0.2s ease;
+				border: 1px solid rgba(232, 116, 160, 0.2);
+			}
+
+			.marquee-item:hover {
+				transform: scale(1.05);
+				box-shadow: 0 8px 16px rgba(232, 116, 160, 0.25);
 			}
 
 			.sort-bar {
@@ -656,7 +733,7 @@
 	<body>
 		<nav class="top-nav">
 			<div class="nav-inner">
-				<div class="nav-title">Our Story</div>
+				<div class="nav-title"></div>
 				<div class="nav-links" aria-label="Pages">
 					<a class="nav-link active" href="index.html">Home</a>
 					<a class="nav-link" href="photobooth.html">PhotoBooth</a>
@@ -671,6 +748,12 @@
 			</div>
 			<h1>Our Memory Journal</h1>
 			<p>A safe space for our moments together.</p>
+			<div class="today-highlights">
+				<div class="highlights-title">Today's Highlights</div>
+				<div class="marquee-container">
+					<div class="marquee" id="marquee"></div>
+				</div>
+			</div>
 		</header>
 
 		<main class="panel">
@@ -792,6 +875,7 @@
 			const modalImage = document.getElementById("modalImage");
 			const modalClose = document.getElementById("modalClose");
 			const loveCounterEl = document.getElementById("loveCounter");
+			const marqueeEl = document.getElementById("marquee");
 
 			let isInitialized = false;
 			let isAuthorized = false;
@@ -932,7 +1016,7 @@
 				const params = new URLSearchParams({
 					q,
 					pageSize: String(pageSize),
-					fields: "files(id,name,mimeType,thumbnailLink,webViewLink)",
+					fields: "files(id,name,mimeType,thumbnailLink,webViewLink,createdTime)",
 					orderBy,
 					key: apiKey,
 				});
@@ -944,6 +1028,170 @@
 				}
 				const data = await response.json();
 				return data.files || [];
+			}
+
+			function isToday(dateString) {
+				if (!dateString) return false;
+				const fileDate = new Date(dateString);
+				const today = new Date();
+				return fileDate.toDateString() === today.toDateString();
+			}
+
+			function buildSizedImageUrl(link, size) {
+				if (!link) {
+					return "";
+				}
+				if (/=s\d+/.test(link)) {
+					return link.replace(/=s\d+/, `=s${size}`);
+				}
+				return `${link}=s${size}`;
+			}
+
+			function getImageTransform(fileId) {
+				const stored = localStorage.getItem(`img-transform-${fileId}`);
+				return stored ? JSON.parse(stored) : { rotate: 0, flipX: false };
+			}
+
+			function drawImageWithTransform(canvas, sourceImg, width, height, transform) {
+				if (!sourceImg || !sourceImg.complete) return;
+				
+				const ctx = canvas.getContext("2d");
+				canvas.width = width;
+				canvas.height = height;
+				ctx.clearRect(0, 0, width, height);
+
+				const rotation = ((transform.rotate || 0) % 360 + 360) % 360;
+				const flipX = transform.flipX || false;
+
+				// Draw image directly with simple transform
+				ctx.save();
+				ctx.beginPath();
+				ctx.rect(0, 0, width, height);
+				ctx.clip();
+
+				ctx.translate(width / 2, height / 2);
+				ctx.scale(flipX ? -1 : 1, 1);
+				ctx.rotate((rotation * Math.PI) / 180);
+
+				const imgWidth = sourceImg.naturalWidth || sourceImg.width;
+				const imgHeight = sourceImg.naturalHeight || sourceImg.height;
+				
+				// Scale to fit
+				const ratio = Math.min(width / imgWidth, height / imgHeight);
+				const drawWidth = imgWidth * ratio;
+				const drawHeight = imgHeight * ratio;
+
+				ctx.drawImage(sourceImg, -drawWidth / 2, -drawHeight / 2, drawWidth, drawHeight);
+				ctx.restore();
+			}
+
+			function populateMarquee(allFiles) {
+				let todayFiles = allFiles.filter(f => isToday(f.createdTime));
+				
+				// If no files from today, show the most recent files
+				if (todayFiles.length === 0) {
+					todayFiles = allFiles.slice(0, 10);
+				}
+				
+				marqueeEl.innerHTML = "";
+				stopMarquee();
+
+				if (todayFiles.length === 0) {
+					return;
+				}
+
+				todayFiles.forEach((file) => {
+					const item = document.createElement("div");
+					item.className = "marquee-item";
+					item.style.cursor = "pointer";
+
+					const thumbUrl = file.thumbnailLink
+						? buildSizedImageUrl(file.thumbnailLink, 280)
+						: `https://drive.google.com/thumbnail?id=${file.id}&sz=w280`;
+
+					const img = document.createElement("img");
+					img.src = thumbUrl;
+					img.alt = file.name || "Memory";
+					img.style.width = "100%";
+					img.style.height = "100%";
+					img.style.objectFit = "cover";
+					img.style.display = "block";
+
+					item.appendChild(img);
+
+					item.addEventListener("click", () => {
+						const fullUrl = file.thumbnailLink
+							? buildSizedImageUrl(file.thumbnailLink, 1600)
+							: `https://drive.google.com/uc?export=view&id=${file.id}`;
+						openModal(fullUrl);
+					});
+
+					marqueeEl.appendChild(item);
+				});
+
+				startMarquee();
+			}
+
+			const marqueeState = {
+				offset: 0,
+				speed: 0.75,
+				rafId: null,
+				paused: false,
+			};
+
+			marqueeEl.addEventListener("mouseenter", () => {
+				marqueeState.paused = true;
+			});
+			marqueeEl.addEventListener("mouseleave", () => {
+				marqueeState.paused = false;
+			});
+
+			function getMarqueeStepWidth() {
+				const firstItem = marqueeEl.firstElementChild;
+				if (!firstItem) {
+					return 0;
+				}
+				const styles = window.getComputedStyle(marqueeEl);
+				const gapValue = parseFloat(styles.gap || "0") || 0;
+				return firstItem.getBoundingClientRect().width + gapValue;
+			}
+
+			function stepMarquee() {
+				if (marqueeState.paused || !marqueeEl.children.length) {
+					marqueeState.rafId = window.requestAnimationFrame(stepMarquee);
+					return;
+				}
+
+				marqueeState.offset -= marqueeState.speed;
+				const stepWidth = getMarqueeStepWidth();
+				if (stepWidth > 0 && Math.abs(marqueeState.offset) >= stepWidth) {
+					const first = marqueeEl.firstElementChild;
+					if (first) {
+						marqueeEl.appendChild(first);
+						marqueeState.offset += stepWidth;
+					}
+				}
+
+				marqueeEl.style.transform = `translateX(${marqueeState.offset}px)`;
+				marqueeState.rafId = window.requestAnimationFrame(stepMarquee);
+			}
+
+			function startMarquee() {
+				marqueeState.offset = 0;
+				marqueeEl.style.transform = "translateX(0px)";
+				if (marqueeState.rafId) {
+					window.cancelAnimationFrame(marqueeState.rafId);
+				}
+				marqueeState.rafId = window.requestAnimationFrame(stepMarquee);
+			}
+
+			function stopMarquee() {
+				if (marqueeState.rafId) {
+					window.cancelAnimationFrame(marqueeState.rafId);
+				}
+				marqueeState.rafId = null;
+				marqueeState.offset = 0;
+				marqueeEl.style.transform = "translateX(0px)";
 			}
 
 			function debounce(fn, delay) {
@@ -1054,6 +1302,8 @@
 					renderFiles(mainFiles, galleryEl);
 					renderFiles(secondaryFiles, gallerySecondaryEl);
 
+					populateMarquee([...mainFiles, ...secondaryFiles]);
+
 					setStatus(`Loaded ${mainFiles.length} main image(s) and ${secondaryFiles.length} from Rham's Faves.`);
 				} catch (error) {
 					setStatus(`Error fetching public images: ${error.message}`);
@@ -1084,7 +1334,7 @@
 					const response = await gapi.client.drive.files.list({
 						q,
 						pageSize,
-						fields: "files(id,name,mimeType,thumbnailLink,webViewLink)",
+						fields: "files(id,name,mimeType,thumbnailLink,webViewLink,createdTime)",
 						orderBy: sortOrderSelect.value,
 					});
 
@@ -1127,6 +1377,7 @@
 					});
 
 					setStatus(`Loaded ${files.length} image(s).`);
+					populateMarquee(files);
 				} catch (error) {
 					setStatus(`Error fetching images: ${error.message}`);
 				}
